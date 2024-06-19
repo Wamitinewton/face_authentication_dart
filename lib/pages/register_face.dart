@@ -1,5 +1,6 @@
 import 'package:face_auth/common/extensions/size_extensions.dart';
 import 'package:face_auth/common/utils/theme.dart';
+import 'package:face_auth/models/user_model.dart';
 import 'package:flutter/material.dart';
 import 'package:google_mlkit_face_detection/google_mlkit_face_detection.dart';
 
@@ -21,6 +22,12 @@ class _RegisterFaceScreenState extends State<RegisterFaceScreen> {
 
           String? _image;
           FaceFeatures? _faceFeatures;
+
+          @override
+  void dispose() {
+    _faceDetector.close();
+    super.dispose();
+  }
   @override
   Widget build(BuildContext context) {
     return Scaffold(
