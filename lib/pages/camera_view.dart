@@ -60,7 +60,7 @@ class _CameraViewState extends State<CameraView> {
                 ),
               ),
         GestureDetector(
-          onTap: () {},
+          onTap: _getImage,
           child: Container(
             width: 60,
             height: 60,

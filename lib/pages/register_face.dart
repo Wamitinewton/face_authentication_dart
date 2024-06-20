@@ -1,8 +1,15 @@
+import 'dart:convert';
+
 import 'package:face_auth/common/extensions/size_extensions.dart';
 import 'package:face_auth/common/utils/theme.dart';
+import 'package:face_auth/common/widgets/custom_button.dart';
 import 'package:face_auth/models/user_model.dart';
+import 'package:face_auth/pages/camera_view.dart';
+import 'package:face_auth/pages/enter_details_view.dart';
 import 'package:flutter/material.dart';
 import 'package:google_mlkit_face_detection/google_mlkit_face_detection.dart';
+
+import '../controllers/extract_face_features.dart';
 
 class RegisterFaceScreen extends StatefulWidget {
   const RegisterFaceScreen({super.key});
@@ -64,7 +71,44 @@ class _RegisterFaceScreenState extends State<RegisterFaceScreen> {
                       topRight: Radius.circular(0.03.sh))),
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.start,
-                children: [],
+                children: [
+                  CameraView(
+                      onImage: (image){
+                        setState(() {
+                          _image = base64Encode(image);
+                        });
+                      },
+                      onInputImage: (inputImage) async {
+                        showDialog(
+                            context: context,
+                            barrierDismissible: false,
+                            builder: (context)=> const Center(
+                              child: CircularProgressIndicator(
+
+                                color: Colors.blue,
+
+                              ),
+
+                            )
+                        );
+                        _faceFeatures = await extractFaceFeatures(inputImage, _faceDetector);
+                        setState(() {
+
+                        });
+                        if(mounted) Navigator.of(context).pop();
+                      },
+                  ),
+                  const Spacer(),
+                  if(_image !=null)
+                    CustomButton(
+                        text: "Start registering",
+                        onTap: (){
+                          Navigator.of(context).push(
+                            MaterialPageRoute(builder: (context) => EnterDetailsView(image: _image!, faceFeatures: _faceFeatures!))
+                          );
+                        }
+                    )
+                ],
               ),
             ),
           ],
