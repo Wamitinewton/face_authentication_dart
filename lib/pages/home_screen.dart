@@ -3,6 +3,7 @@ import 'package:face_auth/common/utils/screen_size_util.dart';
 import 'package:face_auth/common/utils/theme.dart';
 import 'package:face_auth/common/widgets/custom_button.dart';
 import 'package:face_auth/common/widgets/custom_snackbar.dart';
+import 'package:face_auth/pages/authenticate_face_view.dart';
 import 'package:face_auth/pages/register_face.dart';
 import 'package:flutter/material.dart';
 
@@ -45,7 +46,12 @@ class Home extends StatelessWidget {
             SizedBox(
               height: 0.025.sh,
             ),
-            CustomButton(text: "Authenticate user", onTap: () {})
+            CustomButton(
+                text: "Authenticate user",
+                onTap: () {
+                  Navigator.of(context).push(MaterialPageRoute(
+                      builder: (context) => AuthenticateFaceView()));
+                })
           ],
         ),
       ),
