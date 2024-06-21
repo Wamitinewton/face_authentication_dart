@@ -1,5 +1,3 @@
-import 'dart:nativewrappers/_internal/vm/lib/developer.dart';
-
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:face_auth/common/utils/theme.dart';
 import 'package:face_auth/common/widgets/custom_button.dart';
@@ -81,13 +79,16 @@ class _EnterDetailsViewState extends State<EnterDetailsView> {
                             .doc(userId)
                             .set(user.toJson())
                             .catchError((e) {
-                          log("Registration Error: $e");
+                          Navigator.of(context).pop();
+                          CustomSnackbar.errorSnackBar(
+                              "Registration Failed! Try Again");
+                        }).whenComplete(() {
                           Navigator.of(context).pop();
                           CustomSnackbar.successSnackBar(
-                              "Registration success!");
+                              "Registration suceess!");
                           Future.delayed(const Duration(seconds: 1), () {
                             Navigator.of(context).push(MaterialPageRoute(
-                                builder: (context) => const Home()));
+                                builder: (context) => Home()));
                           });
                         });
                       }
