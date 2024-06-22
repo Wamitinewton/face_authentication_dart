@@ -4,9 +4,15 @@ import 'dart:developer';
 
 import 'package:audioplayers/audioplayers.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:face_auth/common/extensions/size_extensions.dart';
+import 'package:face_auth/common/utils/theme.dart';
+import 'package:face_auth/common/widgets/animated_view.dart';
+import 'package:face_auth/common/widgets/custom_button.dart';
 import 'package:face_auth/common/widgets/custom_snackbar.dart';
+import 'package:face_auth/controllers/extract_face_features.dart';
 import 'package:face_auth/models/user_model.dart';
-import 'package:face_auth/pages/user_detail_view.dart';
+import 'package:face_auth/pages/camera_view.dart';
+import 'package:face_auth/pages/user_details_view.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_face_api/flutter_face_api.dart';
 import 'package:google_mlkit_face_detection/google_mlkit_face_detection.dart';
@@ -58,7 +64,93 @@ class _AuthenticateFaceViewState extends State<AuthenticateFaceView> {
 
   @override
   Widget build(BuildContext context) {
-    return const Placeholder();
+    return Scaffold(
+      extendBodyBehindAppBar: true,
+      appBar: AppBar(
+        centerTitle: true,
+        backgroundColor: kOffBlack,
+        title: const Text("Authenticate Face"),
+        elevation: 0,
+      ),
+      body: LayoutBuilder(
+        builder: (context, constrains) => Stack(
+          children: [
+            Container(
+              width: constrains.maxWidth,
+              height: constrains.maxHeight,
+              decoration: const BoxDecoration(
+                gradient: LinearGradient(
+                  colors: [
+                    scaffoldTopGradientClr,
+                    scaffoldBottomGradientClr
+                  ]
+                  )
+              ),
+            ),
+            Align(
+              alignment: Alignment.bottomCenter,
+              child: SingleChildScrollView(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    Container(
+                      height: 0.82.sh,
+                      width: double.infinity,
+                      padding: 
+                      EdgeInsets.fromLTRB(0.05.sw, 0.025.sh, 0.05.sw, 0),
+                      decoration: BoxDecoration(
+                        color: overlayContainerClr,
+                        borderRadius: BorderRadius.only(
+                          topLeft: Radius.circular(0.03.sh),
+                          topRight: Radius.circular(0.03.sh),
+                        )
+                      ),
+                      child: Column(
+                        children: [
+                          Stack(
+                            children: [
+                              CameraView(
+                                onImage: (image){
+                                  _setImage(image);
+                                }, 
+                                onInputImage: (inputImage) async{
+                                  setState(()=> isMatching = true);
+                                  _faceFeatures = await extractFaceFeatures(inputImage, _faceDetector);
+                                  setState(()=> isMatching = false);
+                                }
+                                ),
+                                if(isMatching)
+                                Align(
+                                  alignment: Alignment.center,
+                                  child: Padding(
+                                    padding: EdgeInsets.only(top: 0.064.sh),
+                                    child: const AnimatedView(),
+                                    ),
+                                )
+                            ],
+                          ),
+                           const Spacer(),
+                          if (_canAthenticate)
+                            CustomButton(
+                              text: "Authenticate",
+                              onTap: () {
+                                setState(() => isMatching = true);
+                                _playScanningAudio;
+                                _fetchUsersAndMatchFace();
+                              },
+                            ),
+                          SizedBox(height: 0.038.sh),
+                        ],
+                      ),
+                    )
+                  ],
+                ),
+              ),
+            )
+          ],
+        )
+        ),
+    );
   }
 
   Future _setImage(Uint8List imageToAuthenticate) async {
@@ -99,7 +191,7 @@ class _AuthenticateFaceViewState extends State<AuthenticateFaceView> {
         euclideanDistance(face2.noseBase!, face2.bottomMouth!);
     double ratioNoseTomouth = distNoseToMouth1 / distNoseToMouth2;
 
-    double ratio = (ratioEye + ratioCheek + ratioMouth + ratioNoseTomouth) / 5;
+    double ratio = (ratioEar + ratioEye + ratioCheek + ratioMouth + ratioNoseTomouth) / 5;
     return ratio;
   }
 
@@ -170,7 +262,7 @@ class _AuthenticateFaceViewState extends State<AuthenticateFaceView> {
         });
         if (mounted) {
           Navigator.of(context).push(MaterialPageRoute(
-              builder: (context) => UserDetailView(user: logginUser!)));
+              builder: (context) => UserDetailsView(user: logginUser!)));
         }
         break;
       }
